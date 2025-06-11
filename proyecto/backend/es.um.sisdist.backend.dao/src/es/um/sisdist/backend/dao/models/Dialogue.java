@@ -76,13 +76,19 @@ public class Dialogue {
 
 
     public void addPrompt(Prompt prompt) {
-        this.dialogue.stream().filter(p -> p.getTimestamp().equals(prompt.getTimestamp()))
-                .findFirst()
-                .ifPresent(p -> {
-                    this.dialogue.set(this.dialogue.indexOf(p), prompt);
-                });
+        boolean replaced = false;
+        for (int i = 0; i < this.dialogue.size(); i++) {
+            if (this.dialogue.get(i).getTimestamp().equals(prompt.getTimestamp())) {
+                this.dialogue.set(i, prompt);
+                replaced = true;
+                break;
+            }
+        }
 
-        this.dialogue.add(prompt);
+        if (!replaced) {
+            this.dialogue.add(prompt);
+            this.status = DialogueEstados.BUSY;
+        }
 
         updateNextUrl();
     }

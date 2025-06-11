@@ -1,23 +1,27 @@
 package es.um.sisdist.backend.dao.models;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 
 public class Prompt {
-     private String prompt;
+        private String prompt;
         private String answer;
-        private LocalDateTime timestamp;
+        private long timestamp; // epoch millis
+
 
         public Prompt() {
         }
 
-        public Prompt(String prompt, String answer, LocalDateTime timestamp) {
+        public Prompt(String prompt, String answer, long timestamp) {
             this.prompt = prompt;
             this.answer = answer;
             this.timestamp = timestamp;
+
         }
 
-        public Prompt(String prompt, LocalDateTime timestamp) {
+        public Prompt(String prompt, long timestamp) {
         this.timestamp = timestamp;
         this.prompt = prompt;
         }
@@ -39,12 +43,13 @@ public class Prompt {
         }
 
         public LocalDateTime getTimestamp() {
-            return timestamp;
+        return Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.UTC).toLocalDateTime();
         }
 
         public void setTimestamp(LocalDateTime timestamp) {
-            this.timestamp = timestamp;
+            this.timestamp = timestamp.atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
         }
+
     
         @Override
         public String toString() {
