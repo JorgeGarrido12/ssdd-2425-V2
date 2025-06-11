@@ -1,19 +1,18 @@
 package es.um.sisdist.models;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.time.LocalDateTime;
 
 @XmlRootElement
 public class PromptDTO {
     private String prompt;
     private String answer;
-    private LocalDateTime timestamp;
+    private long timestamp;
 
     // Constructor vacío obligatorio para JAX-RS
     public PromptDTO() {
     }
 
-    public PromptDTO(String prompt, String answer, LocalDateTime timestamp) {
+    public PromptDTO(String prompt, String answer, long timestamp) {
         this.prompt = prompt;
         this.answer = answer;
         this.timestamp = timestamp;
@@ -35,11 +34,11 @@ public class PromptDTO {
         this.answer = answer;
     }
 
-    public LocalDateTime getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 }
