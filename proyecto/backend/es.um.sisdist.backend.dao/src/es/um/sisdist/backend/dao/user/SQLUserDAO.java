@@ -3,14 +3,22 @@
  */
 package es.um.sisdist.backend.dao.user;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import es.um.sisdist.backend.dao.models.Dialogue;
+import es.um.sisdist.backend.dao.models.DialogueEstados;
+import es.um.sisdist.backend.dao.models.Prompt;
+import es.um.sisdist.backend.dao.models.UsageStats;
 import es.um.sisdist.backend.dao.models.User;
 import es.um.sisdist.backend.dao.utils.Lazy;
 
@@ -107,12 +115,16 @@ public class SQLUserDAO implements IUserDAO
         PreparedStatement stm;
         try
         {
+            // Calcular el token MD5 antes de insertar
+            String token = calculateMD5Token(user);
+            user.setToken(token);
+
             stm = conn.get().prepareStatement("INSERT INTO users (id, email, password_hash, name, token, visits) VALUES (?, ?, ?, ?, ?, ?)");
             stm.setString(1, user.getId());
             stm.setString(2, user.getEmail());
             stm.setString(3, user.getPassword_hash());
             stm.setString(4, user.getName());
-            stm.setString(5, user.getToken());
+            stm.setString(5, user.getToken()); // Ahora sí, el token ya está generado
             stm.setInt(6, user.getVisits());
 
             stm.executeUpdate();
@@ -120,7 +132,12 @@ public class SQLUserDAO implements IUserDAO
         {
             e.printStackTrace();
         }
+        catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
     }
+
 
     @Override
     public void updateVisits(String id, int visits)
@@ -173,6 +190,287 @@ public class SQLUserDAO implements IUserDAO
             e.printStackTrace();
         }
     }
+
+    @Override
+    public boolean addVisits(String userId)
+    {
+        PreparedStatement stm;
+        try
+        {
+            // Incrementar en 1 las visitas
+            stm = conn.get().prepareStatement(
+                "UPDATE users SET visits = visits + 1 WHERE id = ?"
+            );
+            stm.setString(1, userId);
+
+            int rows = stm.executeUpdate();
+            return rows > 0;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    private String calculateMD5Token(User user) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        String dataToHash = user.getId() + user.getEmail() + user.getPassword_hash();
+        md.update(dataToHash.getBytes());
+        byte[] digest = md.digest();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+
+
+    //METODOS PARA DIALOGOS Y ESTADISTICAS
+    @Override
+    public boolean createDialogue(String userId, Dialogue dialogue)
+    {
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement(
+                "INSERT INTO conversations (dialogue_id, user_id, status, next_url, end_url, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+            );
+            stm.setString(1, dialogue.getDialogueId());
+            stm.setString(2, userId);
+            stm.setString(3, dialogue.getStatus().toString());
+            stm.setString(4, dialogue.getNextUrl());
+            stm.setString(5, dialogue.getEndUrl());
+            stm.setLong(6, System.currentTimeMillis());
+
+            stm.executeUpdate();
+            return true;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateDialogue(String userId, String dialogueId, Dialogue dialogue)
+    {
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement(
+                "UPDATE conversations SET status = ?, next_url = ?, end_url = ? WHERE dialogue_id = ? AND user_id = ?"
+            );
+            stm.setString(1, dialogue.getStatus().toString());
+            stm.setString(2, dialogue.getNextUrl());
+            stm.setString(3, dialogue.getEndUrl());
+            stm.setString(4, dialogueId);
+            stm.setString(5, userId);
+
+            int rows = stm.executeUpdate();
+            return rows > 0;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addPrompt(String userId, String dialogueId, String nextUrl, Prompt prompt)
+    {
+        PreparedStatement stm;
+        try
+        {
+            // Insert the prompt
+            stm = conn.get().prepareStatement(
+                "INSERT INTO prompts (dialogue_id, prompt, answer, timestamp) VALUES (?, ?, ?, ?)"
+            );
+            stm.setString(1, dialogueId);
+            stm.setString(2, prompt.getPrompt());
+            stm.setString(3, prompt.getAnswer());
+            stm.setLong(4, prompt.getTimestamp());
+
+            stm.executeUpdate();
+
+            // Update nextUrl and set status to BUSY
+            PreparedStatement stm2 = conn.get().prepareStatement(
+                "UPDATE conversations SET next_url = ?, status = ? WHERE dialogue_id = ? AND user_id = ?"
+            );
+            stm2.setString(1, nextUrl);
+            stm2.setString(2, DialogueEstados.BUSY.toString());
+            stm2.setString(3, dialogueId);
+            stm2.setString(4, userId);
+
+            stm2.executeUpdate();
+
+            return true;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addPromptRespuesta(String userId, String dialogueId, Prompt prompt)
+    {
+        PreparedStatement stm;
+        try
+        {
+            // Update the answer of the prompt
+            stm = conn.get().prepareStatement(
+                "UPDATE prompts SET answer = ? WHERE dialogue_id = ? AND timestamp = ?"
+            );
+            stm.setString(1, prompt.getAnswer());
+            stm.setString(2, dialogueId);
+            stm.setLong(3, prompt.getTimestamp());
+
+            int rows = stm.executeUpdate();
+
+            if (rows > 0)
+            {
+                // Set status back to READY
+                PreparedStatement stm2 = conn.get().prepareStatement(
+                    "UPDATE conversations SET status = ? WHERE dialogue_id = ? AND user_id = ?"
+                );
+                stm2.setString(1, DialogueEstados.READY.toString());
+                stm2.setString(2, dialogueId);
+                stm2.setString(3, userId);
+
+                stm2.executeUpdate();
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+
+    @Override
+    public boolean updateDialogueEstado(String userId, String dialogueId, DialogueEstados status)
+    {
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement(
+                "UPDATE conversations SET status = ? WHERE dialogue_id = ? AND user_id = ?"
+            );
+            stm.setString(1, status.toString());
+            stm.setString(2, dialogueId);
+            stm.setString(3, userId);
+
+            int rows = stm.executeUpdate();
+            return rows > 0;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    @Override
+    public Dialogue getDialogue(String userId, String dialogueId)
+    {
+        Dialogue dialogue = null;
+        try
+        {
+            // First, get conversation
+            PreparedStatement stm = conn.get().prepareStatement(
+                "SELECT dialogue_id, status, next_url, end_url FROM conversations WHERE dialogue_id = ? AND user_id = ?"
+            );
+            stm.setString(1, dialogueId);
+            stm.setString(2, userId);
+
+            ResultSet rs = stm.executeQuery();
+
+            if (rs.next())
+            {
+                dialogue = new Dialogue();
+                dialogue.setDialogueId(rs.getString("dialogue_id"));
+                dialogue.setStatus(DialogueEstados.valueOf(rs.getString("status")));
+                dialogue.setNextUrl(rs.getString("next_url"));
+                dialogue.setEndUrl(rs.getString("end_url"));
+            }
+            else
+            {
+                return null;
+            }
+
+            // Then, get prompts
+            PreparedStatement stm2 = conn.get().prepareStatement(
+                "SELECT prompt, answer, timestamp FROM prompts WHERE dialogue_id = ? ORDER BY timestamp ASC"
+            );
+            stm2.setString(1, dialogueId);
+
+            ResultSet rs2 = stm2.executeQuery();
+
+            List<Prompt> prompts = new ArrayList<>();
+            while (rs2.next())
+            {
+                Prompt p = new Prompt();
+                p.setPrompt(rs2.getString("prompt"));
+                p.setAnswer(rs2.getString("answer"));
+                p.setTimestamp(rs2.getLong("timestamp"));
+
+                prompts.add(p);
+            }
+
+            dialogue.setDialogue(prompts);
+
+            return dialogue;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    @Override
+    public UsageStats getUsageStats(String userId)
+    {
+        UsageStats stats = new UsageStats();
+        try
+        {
+            PreparedStatement stm = conn.get().prepareStatement(
+                "SELECT total_prompts, total_conversations, last_access_timestamp FROM usage_stats WHERE user_id = ?"
+            );
+            stm.setString(1, userId);
+
+            ResultSet rs = stm.executeQuery();
+
+            if (rs.next())
+            {
+                stats.setTotalPrompts(rs.getInt("total_prompts"));
+                stats.setTotalConversations(rs.getInt("total_conversations"));
+                stats.setLastAccessTimestamp(rs.getLong("last_access_timestamp"));
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+
+        return stats;
+    }
+
 
 
 }
