@@ -1,5 +1,6 @@
 package es.um.sisdist.backend.dao.user;
 
+import java.util.List;
 import java.util.Optional;
 
 import es.um.sisdist.backend.dao.models.Dialogue;
@@ -30,6 +31,9 @@ public interface IUserDAO
     boolean addPromptRespuesta(String userId, String dialogueId, Prompt prompt);
     boolean updateDialogueEstado(String userId, String dialogueId, DialogueEstados status);
     Dialogue getDialogue(String userId, String dialogueId);
+
+    List<String> getDialogueIdsByUserId(String userId);
+
 
     // Estadísticas (mínimo addVisits, recomendable también getUsageStats)
     boolean addVisits(String username);

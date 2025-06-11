@@ -472,5 +472,32 @@ public class SQLUserDAO implements IUserDAO
     }
 
 
+    @Override
+    public List<String> getDialogueIdsByUserId(String userId)
+    {
+        List<String> ids = new ArrayList<>();
+        try
+        {
+            PreparedStatement stm = conn.get().prepareStatement(
+                "SELECT dialogue_id FROM conversations WHERE user_id = ?"
+            );
+            stm.setString(1, userId);
+
+            ResultSet rs = stm.executeQuery();
+
+            while (rs.next())
+            {
+                ids.add(rs.getString("dialogue_id"));
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+
+        return ids;
+    }
+
+
 
 }

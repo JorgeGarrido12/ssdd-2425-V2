@@ -3,6 +3,8 @@
  */
 package es.um.sisdist.backend.Service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -10,6 +12,10 @@ import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
 import es.um.sisdist.backend.grpc.PingRequest;
 import es.um.sisdist.backend.dao.DAOFactoryImpl;
 import es.um.sisdist.backend.dao.IDAOFactory;
+import es.um.sisdist.backend.dao.models.Dialogue;
+import es.um.sisdist.backend.dao.models.DialogueEstados;
+import es.um.sisdist.backend.dao.models.Prompt;
+import es.um.sisdist.backend.dao.models.UsageStats;
 import es.um.sisdist.backend.dao.models.User;
 import es.um.sisdist.backend.dao.models.utils.UserUtils;
 import es.um.sisdist.backend.dao.user.IUserDAO;
@@ -99,4 +105,53 @@ public class AppLogicImpl
 
         return Optional.empty();
     }
+
+    //Metodos para dialogos y demas
+
+    public UsageStats getUsageStats(String userId)
+    {
+        return dao.getUsageStats(userId);
+    }
+
+    public List<Dialogue> getAllDialoguesForUser(String userId)
+    {
+        List<String> dialogueIds = dao.getDialogueIdsByUserId(userId);
+        List<Dialogue> dialogues = new ArrayList<>();
+
+        for (String dialogueId : dialogueIds)
+        {
+            Dialogue d = dao.getDialogue(userId, dialogueId);
+            if (d != null)
+                dialogues.add(d);
+        }
+
+        return dialogues;
+    }
+
+
+    public Dialogue getDialogue(String userId, String dialogueId)
+    {
+        return dao.getDialogue(userId, dialogueId);
+    }
+
+    public boolean createDialogue(String userId, Dialogue dialogue)
+    {
+        return dao.createDialogue(userId, dialogue);
+    }
+
+    public boolean addPrompt(String userId, String dialogueId, String nextUrl, Prompt prompt)
+    {
+        return dao.addPrompt(userId, dialogueId, nextUrl, prompt);
+    }
+
+    public boolean addPromptRespuesta(String userId, String dialogueId, Prompt prompt)
+    {
+        return dao.addPromptRespuesta(userId, dialogueId, prompt);
+    }
+
+    public boolean updateDialogueEstado(String userId, String dialogueId, DialogueEstados status)
+    {
+        return dao.updateDialogueEstado(userId, dialogueId, status);
+    }
+
 }
