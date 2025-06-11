@@ -4,7 +4,7 @@
 package es.um.sisdist.backend.dao.user;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
-import static com.mongodb.client.model.Filters.eq;
+//import static com.mongodb.client.model.Filters.eq;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static java.util.Arrays.*;
@@ -30,7 +30,7 @@ import es.um.sisdist.backend.dao.utils.Lazy;
  * @author dsevilla
  *
  */
-public class MongoUserDAO implements IUserDAO
+public class MongoUserDAO //implements IUserDAO
 {
     private Supplier<MongoCollection<User>> collection;
 
@@ -53,7 +53,7 @@ public class MongoUserDAO implements IUserDAO
         	return database.getCollection("users", User.class);
         });
     }
-
+/* 
     @Override
     public Optional<User> getUserById(String id)
     {
@@ -67,4 +67,5 @@ public class MongoUserDAO implements IUserDAO
         Optional<User> user = Optional.ofNullable(collection.get().find(eq("email", id)).first());
         return user;
     }
+        */
 }
