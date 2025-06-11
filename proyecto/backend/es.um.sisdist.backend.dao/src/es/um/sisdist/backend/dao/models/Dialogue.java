@@ -78,7 +78,7 @@ public class Dialogue {
     public void addPrompt(Prompt prompt) {
         boolean replaced = false;
         for (int i = 0; i < this.dialogue.size(); i++) {
-            if (this.dialogue.get(i).getTimestamp().equals(prompt.getTimestamp())) {
+            if (this.dialogue.get(i).getTimestamp() == prompt.getTimestamp()){
                 this.dialogue.set(i, prompt);
                 replaced = true;
                 break;

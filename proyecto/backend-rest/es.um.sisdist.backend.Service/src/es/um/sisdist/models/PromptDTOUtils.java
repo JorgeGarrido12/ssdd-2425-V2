@@ -6,17 +6,6 @@ import java.util.stream.Collectors;
 
 public class PromptDTOUtils
 {
-    public static PromptDTO toDTO(Prompt prompt)
-    {
-        if (prompt == null) return null;
-
-        return new PromptDTO(
-            prompt.getPrompt(),
-            prompt.getAnswer(),
-            prompt.getTimestamp()
-        );
-    }
-
     public static Prompt fromDTO(PromptDTO dto)
     {
         if (dto == null) return null;
@@ -27,6 +16,18 @@ public class PromptDTOUtils
             dto.getTimestamp()
         );
     }
+
+    public static PromptDTO toDTO(Prompt p)
+    {
+        if (p == null) return null;
+
+        return new PromptDTO(
+            p.getPrompt(),
+            p.getAnswer(),
+            p.getTimestamp()
+        );
+    }
+
 
     //Conversion en listas, las necesitaremos cuando tengamos listas de prompts
 

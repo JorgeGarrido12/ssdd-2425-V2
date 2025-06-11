@@ -1,9 +1,5 @@
 package es.um.sisdist.backend.dao.models;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
 
 public class Prompt {
         private String prompt;
@@ -42,12 +38,12 @@ public class Prompt {
             this.answer = answer;
         }
 
-        public LocalDateTime getTimestamp() {
-        return Instant.ofEpochMilli(timestamp).atZone(ZoneOffset.UTC).toLocalDateTime();
+        public long getTimestamp() {
+            return timestamp;
         }
 
-        public void setTimestamp(LocalDateTime timestamp) {
-            this.timestamp = timestamp.atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+        public void setTimestamp(long timestamp) {
+            this.timestamp = timestamp;
         }
 
     
