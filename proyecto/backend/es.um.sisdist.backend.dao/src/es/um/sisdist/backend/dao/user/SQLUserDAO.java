@@ -51,9 +51,21 @@ public class SQLUserDAO implements IUserDAO
     @Override
     public Optional<User> getUserById(String id)
     {
-        // TODO Auto-generated method stub
-        return null;
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement("SELECT * from users WHERE id = ?");
+            stm.setString(1, id);
+            ResultSet result = stm.executeQuery();
+            if (result.next())
+                return createUser(result);
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return Optional.empty();
     }
+
 
     @Override
     public Optional<User> getUserByEmail(String id)
@@ -88,4 +100,79 @@ public class SQLUserDAO implements IUserDAO
             return Optional.empty();
         }
     }
+
+    @Override
+    public void createUser(User user)
+    {
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement("INSERT INTO users (id, email, password_hash, name, token, visits) VALUES (?, ?, ?, ?, ?, ?)");
+            stm.setString(1, user.getId());
+            stm.setString(2, user.getEmail());
+            stm.setString(3, user.getPassword_hash());
+            stm.setString(4, user.getName());
+            stm.setString(5, user.getToken());
+            stm.setInt(6, user.getVisits());
+
+            stm.executeUpdate();
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateVisits(String id, int visits)
+    {
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement("UPDATE users SET visits = ? WHERE id = ?");
+            stm.setInt(1, visits);
+            stm.setString(2, id);
+
+            stm.executeUpdate();
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateToken(String id, String token)
+    {
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement("UPDATE users SET token = ? WHERE id = ?");
+            stm.setString(1, token);
+            stm.setString(2, id);
+
+            stm.executeUpdate();
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    @Override
+    public void deleteUser(String id)
+    {
+        PreparedStatement stm;
+        try
+        {
+            stm = conn.get().prepareStatement("DELETE FROM users WHERE id = ?");
+            stm.setString(1, id);
+
+            stm.executeUpdate();
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 }
