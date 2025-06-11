@@ -3,6 +3,8 @@
  */
 package es.um.sisdist.backend.Service.impl;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -88,23 +90,50 @@ public class AppLogicImpl
         return response.getV() == v;
     }
 
+    private String calculateMD5(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(input.getBytes());
+        byte[] digest = md.digest();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+
+
     // El frontend, a través del formulario de login,
     // envía el usuario y pass, que se convierte a un DTO. De ahí
     // obtenemos la consulta a la base de datos, que nos retornará,
     // si procede,
-    public Optional<User> checkLogin(String email, String pass)
+    public Optional<User> checkLogin(String email, String password)
     {
-        Optional<User> u = dao.getUserByEmail(email);
+        Optional<User> userOpt = dao.getUserByEmail(email);
 
-        if (u.isPresent())
+        if (userOpt.isPresent())
         {
-            String hashed_pass = UserUtils.md5pass(pass);
-            if (0 == hashed_pass.compareTo(u.get().getPassword_hash()))
-                return u;
-        }
+            User user = userOpt.get();
+            try
+            {
+                String passwordHash = calculateMD5(password);
 
-        return Optional.empty();
+                if (user.getPassword_hash().equals(passwordHash))
+                    return userOpt;
+                else
+                    return Optional.empty();
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                e.printStackTrace();
+                return Optional.empty();
+            }
+        }
+        else
+        {
+            return Optional.empty();
+        }
     }
+
 
     //Metodos para dialogos y demas
 
@@ -153,5 +182,11 @@ public class AppLogicImpl
     {
         return dao.updateDialogueEstado(userId, dialogueId, status);
     }
+
+    public void createUser(User user)
+    {
+        dao.createUser(user);
+    }
+
 
 }

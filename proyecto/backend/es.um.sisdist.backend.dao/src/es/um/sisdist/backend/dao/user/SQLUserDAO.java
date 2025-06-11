@@ -119,6 +119,10 @@ public class SQLUserDAO implements IUserDAO
             String token = calculateMD5Token(user);
             user.setToken(token);
 
+            // Hashear la password que viene del User
+            String passwordHash = calculateMD5(user.getPassword_hash());
+            user.setPassword_hash(passwordHash);
+
             stm = conn.get().prepareStatement("INSERT INTO users (id, email, password_hash, name, token, visits) VALUES (?, ?, ?, ?, ?, ?)");
             stm.setString(1, user.getId());
             stm.setString(2, user.getEmail());
@@ -137,6 +141,17 @@ public class SQLUserDAO implements IUserDAO
             e.printStackTrace();
         }
     }
+
+    private String calculateMD5(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(input.getBytes());
+        byte[] digest = md.digest();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }   
 
 
     @Override

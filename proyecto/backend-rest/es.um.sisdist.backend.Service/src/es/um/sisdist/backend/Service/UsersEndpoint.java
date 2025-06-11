@@ -79,13 +79,26 @@ public class UsersEndpoint
     @Produces(MediaType.APPLICATION_JSON)
     public Response createDialogue(@PathParam("username") String username, DialogueDTO dialogueDto)
     {
-        Dialogue d = DialogueDTOUtils.fromDTO(dialogueDto);
+        Dialogue d = new Dialogue();
+        d.setDialogueId(dialogueDto.getDialogueId());
+        d.setStatus(DialogueEstados.READY);
+
+        // Generar nextUrl con token inicial
+        String nextUrl = "/u/" + username + "/dialogue/" + d.getDialogueId() + "/next/" + System.currentTimeMillis();
+        d.setNextUrl(nextUrl);
+
+        // Generar endUrl
+        String endUrl = "/u/" + username + "/dialogue/" + d.getDialogueId() + "/end";
+        d.setEndUrl(endUrl);
+
         boolean success = impl.createDialogue(username, d);
+
         if (success)
             return Response.status(Response.Status.CREATED).build();
         else
             return Response.status(Response.Status.BAD_REQUEST).build();
     }
+
 
     @GET
     @Path("/{username}/dialogue/{dialogueId}")

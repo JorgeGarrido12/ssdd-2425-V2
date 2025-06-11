@@ -22,6 +22,6 @@ public class DAOFactoryImpl implements IDAOFactory
     @Override
     public IUserDAO createMongoUserDAO()
     {
-        return new MongoUserDAO();
+        return null;
     }
 }

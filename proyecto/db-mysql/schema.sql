@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS conversations (
     status VARCHAR(20),
     next_url TEXT,
     end_url TEXT,
-    created_at BIGINT DEFAULT UNIX_TIMESTAMP(),
+    created_at BIGINT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
