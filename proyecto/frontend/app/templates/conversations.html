@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Tus conversaciones</h1>
+
+{% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+{% if convs %}
+    <ul>
+        {% for c in convs.conversations %}  {# o como venga en el JSON #}
+            <li>
+                <a href="{{ url_for('chat_detail', dialogue_id=c.dialogue_id) }}">{{ c.dialogue_id }}</a>
+                <a href="{{ url_for('delete_conversation', dialogue_id=c.dialogue_id) }}">[Eliminar]</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tienes conversaciones.</p>
+{% endif %}
+
+<a href="{{ url_for('new_conversation') }}">Nueva conversación</a>
+
+{% endblock %}

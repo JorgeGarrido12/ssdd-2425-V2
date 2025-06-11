@@ -1,39 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="column is-4 is-offset-4">
-    <h3 class="title">Sign Up</h3>
-    <div class="box">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="notification is-danger">
-                    {{ messages[0] }}<br> Go to <a href="{{ url_for('auth.login') }}">login page</a>.
-                </div>
-            {% endif %}
-        {% endwith %}
+<div class="container" style="max-width: 400px; margin-top: 50px;">
+    <h3 class="mb-4">Sign Up</h3>
 
-        <form method="POST" action="/signup">
-            {{ form.hidden_tag() }}
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="email" name="email" placeholder="Email" autofocus="">
-                </div>
-            </div>
+    {% if error %}
+      <div class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+    {% endif %}
 
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
-                </div>
-            </div>
+    {% if success %}
+      <div class="alert alert-success" role="alert">
+        {{ success }}
+      </div>
+    {% endif %}
 
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="password" name="password" placeholder="Password">
-                </div>
-            </div>
+    <form method="POST" action="{{ url_for('signup') }}">
+        {{ form.csrf_token }}
 
-            <button class="button is-block is-info is-large is-fullwidth" type="submit"> Sign Up</button>
-        </form>
-    </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            {{ form.username(class_="form-control", id="username") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            {{ form.email(class_="form-control", id="email") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            {{ form.password(class_="form-control", id="password") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="confirm" class="form-label">Confirm Password</label>
+            {{ form.confirm(class_="form-control", id="confirm") }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.submit(class_="btn btn-primary w-100") }}
+        </div>
+    </form>
 </div>
 {% endblock %}

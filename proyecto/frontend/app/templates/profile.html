@@ -2,6 +2,22 @@
 
 {% block content %}
 <h1 class="title">
-    Welcome, {{current_user.name}}!! {{current_user.email}}
+    Perfil de usuario
 </h1>
+
+{% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+{% elif user_data %}
+    <ul>
+        <li><strong>ID:</strong> {{ user_data.user.id }}</li>
+        <li><strong>Nombre:</strong> {{ user_data.user.name }}</li>
+        <li><strong>Email:</strong> {{ user_data.user.email }}</li>
+        <li><strong>Visitas:</strong> {{ user_data.user.visits }}</li>
+    </ul>
+{% else %}
+    <p>No se pudo obtener la información del usuario.</p>
+{% endif %}
+
 {% endblock %}

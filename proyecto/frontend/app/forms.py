@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired, EqualTo, Length, Email
 
 class RegisterForm(FlaskForm):
@@ -12,14 +12,9 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Register')
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember me')
     submit = SubmitField('Login')
 
-class NewDialogueForm(FlaskForm):
-    dialogue_id = StringField('Conversation Name', validators=[DataRequired(), Length(min=1, max=50)])
-    submit = SubmitField('Start Conversation')
 
-class PromptForm(FlaskForm):
-    prompt = TextAreaField('Your message', validators=[DataRequired(), Length(min=1)])
-    submit = SubmitField('Send')
