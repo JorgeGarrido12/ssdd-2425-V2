@@ -123,16 +123,29 @@ public class SQLUserDAO implements IUserDAO
             String passwordHash = calculateMD5(user.getPassword_hash());
             user.setPassword_hash(passwordHash);
 
+            // Insertar en users
             stm = conn.get().prepareStatement("INSERT INTO users (id, email, password_hash, name, token, visits) VALUES (?, ?, ?, ?, ?, ?)");
             stm.setString(1, user.getId());
             stm.setString(2, user.getEmail());
             stm.setString(3, user.getPassword_hash());
             stm.setString(4, user.getName());
-            stm.setString(5, user.getToken()); // Ahora sí, el token ya está generado
+            stm.setString(5, user.getToken());
             stm.setInt(6, user.getVisits());
 
             stm.executeUpdate();
-        } catch (SQLException e)
+
+            // Insertar también en usage_stats
+            PreparedStatement stmStats = conn.get().prepareStatement(
+                "INSERT INTO usage_stats (user_id, total_prompts, total_conversations, last_access_timestamp) VALUES (?, ?, ?, ?)"
+            );
+            stmStats.setString(1, user.getId());
+            stmStats.setInt(2, 0);
+            stmStats.setInt(3, 0);
+            stmStats.setLong(4, System.currentTimeMillis());
+
+            stmStats.executeUpdate();
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
         }
@@ -141,6 +154,7 @@ public class SQLUserDAO implements IUserDAO
             e.printStackTrace();
         }
     }
+
 
     private String calculateMD5(String input) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
@@ -513,6 +527,58 @@ public class SQLUserDAO implements IUserDAO
         return ids;
     }
 
+    //Metodos para actualizar las estadísticas de uso
+    @Override
+    public boolean incrementTotalConversations(String userId)
+    {
+        try {
+            PreparedStatement stm = conn.get().prepareStatement(
+                "UPDATE usage_stats SET total_conversations = total_conversations + 1 WHERE user_id = ?"
+            );
+            stm.setString(1, userId);
+            int rows = stm.executeUpdate();
+            return rows > 0;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean incrementTotalPrompts(String userId)
+    {
+        try {
+            PreparedStatement stm = conn.get().prepareStatement(
+                "UPDATE usage_stats SET total_prompts = total_prompts + 1 WHERE user_id = ?"
+            );
+            stm.setString(1, userId);
+            int rows = stm.executeUpdate();
+            return rows > 0;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateLastAccessTimestamp(String userId, long timestamp)
+    {
+        try {
+            PreparedStatement stm = conn.get().prepareStatement(
+                "UPDATE usage_stats SET last_access_timestamp = ? WHERE user_id = ?"
+            );
+            stm.setLong(1, timestamp);
+            stm.setString(2, userId);
+            int rows = stm.executeUpdate();
+            return rows > 0;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
 }

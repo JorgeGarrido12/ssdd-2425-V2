@@ -37,6 +37,10 @@ public interface IUserDAO
 
     // Estadísticas (mínimo addVisits, recomendable también getUsageStats)
     boolean addVisits(String username);
+    boolean incrementTotalConversations(String userId);
+    boolean incrementTotalPrompts(String userId);
+    boolean updateLastAccessTimestamp(String userId, long timestamp);
+
 
     // RECOMENDADO → para UserFullDTO:
     UsageStats getUsageStats(String userId); // Añada estadísticas de uso del usuario, como número de diálogos, prompts, etc.

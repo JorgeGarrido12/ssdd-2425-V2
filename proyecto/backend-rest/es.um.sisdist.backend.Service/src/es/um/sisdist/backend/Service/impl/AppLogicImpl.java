@@ -110,8 +110,11 @@ public class AppLogicImpl {
                 String passwordHash = calculateMD5(password);
 
                 if (user.getPassword_hash().equals(passwordHash))
+                {
+                    dao.addVisits(user.getId());
+                    dao.updateLastAccessTimestamp(user.getId(), System.currentTimeMillis());
                     return userOpt;
-                else
+                } else
                     return Optional.empty();
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
@@ -146,14 +149,24 @@ public class AppLogicImpl {
     }
 
     public boolean createDialogue(String userId, Dialogue dialogue) {
-        return dao.createDialogue(userId, dialogue);
+        boolean success = dao.createDialogue(userId, dialogue);
+
+        if (success) {
+            dao.incrementTotalConversations(userId);
+        }
+
+        return success;
     }
+
 
     public boolean addPrompt(String userId, String dialogueId, String nextUrl, Prompt prompt) {
         // Paso 1 → Añadir el prompt en la BD → status pasa a BUSY
         boolean success = dao.addPrompt(userId, dialogueId, nextUrl, prompt);
 
         if (success) {
+            // Actualizar estadísticas
+            dao.incrementTotalPrompts(userId);
+
             // Paso 2 → Llamar a gRPC
             String answer = callExternalService(prompt);
 
@@ -170,6 +183,7 @@ public class AppLogicImpl {
 
         return success;
     }
+
 
     public boolean addPromptRespuesta(String userId, String dialogueId, Prompt prompt) {
         return dao.addPromptRespuesta(userId, dialogueId, prompt);
