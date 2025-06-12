@@ -28,9 +28,9 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase {
 	public void askPrompt(PromptRequest request, StreamObserver<PromptResponse> responseObserver) {
 		logger.info("Received AskPrompt, prompt = " + request.getPrompt());
 
-		// ⏱ Añade aquí el retardo para simular tiempo de respuesta
+		// Añade aquí el retardo para simular tiempo de respuesta
 		try {
-			Thread.sleep(4000); // 2 segundos de espera
+			Thread.sleep(4000); // 4 segundos de espera
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

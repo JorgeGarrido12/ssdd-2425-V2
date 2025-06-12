@@ -111,11 +111,13 @@
 		</dependency>
 
 		<!-- Locales -->
+		
 		<dependency>
 			<groupId>es.um.sisdist.backend</groupId>
 			<artifactId>dao</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>es.um.sisdist.backend.grpc</groupId>
 			<artifactId>GrpcService</artifactId>
