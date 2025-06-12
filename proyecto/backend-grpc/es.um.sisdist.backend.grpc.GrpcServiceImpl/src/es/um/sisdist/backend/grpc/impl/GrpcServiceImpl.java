@@ -6,6 +6,9 @@ import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
 import es.um.sisdist.backend.grpc.PingRequest;
 import es.um.sisdist.backend.grpc.PingResponse;
 import io.grpc.stub.StreamObserver;
+import es.um.sisdist.backend.grpc.PromptRequest;
+import es.um.sisdist.backend.grpc.PromptResponse;
+
 
 class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase 
 {
@@ -24,6 +27,20 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase
 		responseObserver.onNext(PingResponse.newBuilder().setV(request.getV()).build());
 		responseObserver.onCompleted();
 	}
+
+
+	@Override
+	public void askPrompt(PromptRequest request, StreamObserver<PromptResponse> responseObserver)
+	{
+		logger.info("Received AskPrompt, prompt = " + request.getPrompt());
+
+		// Aquí puedes simular una respuesta de momento
+		String simulatedAnswer = "Simulated answer to: " + request.getPrompt();
+
+		responseObserver.onNext(PromptResponse.newBuilder().setAnswer(simulatedAnswer).build());
+		responseObserver.onCompleted();
+	}
+
 
 
 /*

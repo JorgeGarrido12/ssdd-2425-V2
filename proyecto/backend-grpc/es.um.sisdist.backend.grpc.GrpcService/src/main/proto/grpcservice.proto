@@ -8,6 +8,7 @@ package es.um.sisdist.backend.grpc;
 service GrpcService
 {
     rpc Ping(PingRequest) returns (PingResponse);
+	rpc AskPrompt(PromptRequest) returns (PromptResponse);
 }
 
 message PingRequest
@@ -18,4 +19,14 @@ message PingRequest
 message PingResponse
 {
 	int32 v = 1;
+}
+
+message PromptRequest
+{
+    string prompt = 1;
+}
+
+message PromptResponse
+{
+    string answer = 1;
 }

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import es.um.sisdist.backend.grpc.PromptRequest;
+import es.um.sisdist.backend.grpc.PromptResponse;
 
 import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
 import es.um.sisdist.backend.grpc.PingRequest;
@@ -187,6 +189,19 @@ public class AppLogicImpl
     {
         dao.createUser(user);
     }
+
+
+    public String callExternalService(Prompt p)
+    {
+        logger.info("Calling external gRPC service with prompt: " + p.getPrompt());
+
+        PromptRequest request = PromptRequest.newBuilder().setPrompt(p.getPrompt()).build();
+        PromptResponse response = blockingStub.askPrompt(request);
+
+        logger.info("Received answer from gRPC: " + response.getAnswer());
+        return response.getAnswer();
+    }
+
 
 
 }
