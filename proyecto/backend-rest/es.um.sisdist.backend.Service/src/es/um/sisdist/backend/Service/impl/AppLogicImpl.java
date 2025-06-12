@@ -167,22 +167,24 @@ public class AppLogicImpl {
             // Actualizar estadísticas
             dao.incrementTotalPrompts(userId);
 
-            // Paso 2 → Llamar a gRPC
-            String answer = callExternalService(prompt);
+            // Paso 2 → Llamar a gRPC → sin esperar respuesta
+            PromptRequest grpcRequest = PromptRequest.newBuilder()
+                .setUserId(userId)
+                .setDialogueId(dialogueId)
+                .setPrompt(prompt.getPrompt())
+                .setTimestamp(Long.toString(prompt.getTimestamp()))
+                .build();
 
-            // Paso 3 → Actualizar el prompt con la respuesta
-            prompt.setAnswer(answer);
+            blockingStub.askPrompt(grpcRequest);
 
-            // Paso 4 → Actualizar en la BD → y status pasa a READY
-            dao.addPromptRespuesta(userId, dialogueId, prompt);
-
-            logger.info("Prompt processed: answer stored, dialogue READY.");
+            logger.info("Prompt sent to gRPC. Response will be processed asynchronously.");
         } else {
             logger.warning("Failed to add prompt to dialogue.");
         }
 
         return success;
     }
+
 
 
     public boolean addPromptRespuesta(String userId, String dialogueId, Prompt prompt) {
@@ -197,7 +199,9 @@ public class AppLogicImpl {
         dao.createUser(user);
     }
 
-    public String callExternalService(Prompt p) {
+
+    //YA NO SE USA PORQUE NO SIMULAMOS LA RESPUESTA DEL LLAMACHAT
+    /*public String callExternalService(Prompt p) {
         logger.info("Calling external gRPC service with prompt: " + p.getPrompt());
 
         PromptRequest request = PromptRequest.newBuilder().setPrompt(p.getPrompt()).build();
@@ -205,6 +209,6 @@ public class AppLogicImpl {
 
         logger.info("Received answer from gRPC: " + response.getAnswer());
         return response.getAnswer();
-    }
+    }*/
 
 }

@@ -8,14 +8,23 @@ import es.um.sisdist.backend.grpc.PingResponse;
 import io.grpc.stub.StreamObserver;
 import es.um.sisdist.backend.grpc.PromptRequest;
 import es.um.sisdist.backend.grpc.PromptResponse;
+import es.um.sisdist.backend.dao.IDAOFactory;
+import es.um.sisdist.backend.dao.DAOFactoryImpl;
+import es.um.sisdist.backend.dao.user.IUserDAO;
 
 class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase {
 	private Logger logger;
+	private IUserDAO dao;
+
 
 	public GrpcServiceImpl(Logger logger) {
-		super();
-		this.logger = logger;
-	}
+        super();
+        this.logger = logger;
+
+        //Como solo usamos MySQL, creamos el DAOFactoryImpl
+        IDAOFactory daoFactory = new DAOFactoryImpl();
+        dao = daoFactory.createSQLUserDAO();
+    }
 
 	@Override
 	public void ping(PingRequest request, StreamObserver<PingResponse> responseObserver) {
@@ -28,19 +37,11 @@ class GrpcServiceImpl extends GrpcServiceGrpc.GrpcServiceImplBase {
 	public void askPrompt(PromptRequest request, StreamObserver<PromptResponse> responseObserver) {
 		logger.info("Received AskPrompt, prompt = " + request.getPrompt());
 
-		// Añade aquí el retardo para simular tiempo de respuesta
-		try {
-			Thread.sleep(4000); // 4 segundos de espera
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		// Aquí puedes simular una respuesta de momento
-		String simulatedAnswer = "Simulated answer to: " + request.getPrompt();
-
-		responseObserver.onNext(PromptResponse.newBuilder().setAnswer(simulatedAnswer).build());
-		responseObserver.onCompleted();
+		// Lanzar el hilo Dialogues que hará todo el trabajo
+		Dialogues t = new Dialogues(request, responseObserver, dao);
+		t.start();
 	}
+
 
 	/*
 	 * @Override
