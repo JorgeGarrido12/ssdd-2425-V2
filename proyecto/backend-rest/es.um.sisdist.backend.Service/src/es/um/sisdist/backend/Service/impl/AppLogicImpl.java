@@ -30,8 +30,7 @@ import io.grpc.ManagedChannelBuilder;
  * @author dsevilla
  *
  */
-public class AppLogicImpl
-{
+public class AppLogicImpl {
     IDAOFactory daoFactory;
     IUserDAO dao;
 
@@ -39,15 +38,14 @@ public class AppLogicImpl
 
     private final ManagedChannel channel;
     private final GrpcServiceGrpc.GrpcServiceBlockingStub blockingStub;
-    //private final GrpcServiceGrpc.GrpcServiceStub asyncStub;
+    // private final GrpcServiceGrpc.GrpcServiceStub asyncStub;
 
     static AppLogicImpl instance = new AppLogicImpl();
 
-    private AppLogicImpl()
-    {
+    private AppLogicImpl() {
         daoFactory = new DAOFactoryImpl();
         Optional<String> backend = Optional.ofNullable(System.getenv("DB_BACKEND"));
-        
+
         if (backend.isPresent() && backend.get().equals("mongo"))
             dao = daoFactory.createMongoUserDAO();
         else
@@ -62,33 +60,29 @@ public class AppLogicImpl
                 // to avoid needing certificates.
                 .usePlaintext().build();
         blockingStub = GrpcServiceGrpc.newBlockingStub(channel);
-        //asyncStub = GrpcServiceGrpc.newStub(channel);
+        // asyncStub = GrpcServiceGrpc.newStub(channel);
     }
 
-    public static AppLogicImpl getInstance()
-    {
+    public static AppLogicImpl getInstance() {
         return instance;
     }
 
-    public Optional<User> getUserByEmail(String userId)
-    {
+    public Optional<User> getUserByEmail(String userId) {
         Optional<User> u = dao.getUserByEmail(userId);
         return u;
     }
 
-    public Optional<User> getUserById(String userId)
-    {
+    public Optional<User> getUserById(String userId) {
         return dao.getUserById(userId);
     }
 
-    public boolean ping(int v)
-    {
-    	logger.info("Issuing ping, value: " + v);
-    	
+    public boolean ping(int v) {
+        logger.info("Issuing ping, value: " + v);
+
         // Test de grpc, puede hacerse con la BD
-    	var msg = PingRequest.newBuilder().setV(v).build();
+        var msg = PingRequest.newBuilder().setV(v).build();
         var response = blockingStub.ping(msg);
-        
+
         return response.getV() == v;
     }
 
@@ -103,54 +97,42 @@ public class AppLogicImpl
         return sb.toString();
     }
 
-
     // El frontend, a través del formulario de login,
     // envía el usuario y pass, que se convierte a un DTO. De ahí
     // obtenemos la consulta a la base de datos, que nos retornará,
     // si procede,
-    public Optional<User> checkLogin(String email, String password)
-    {
+    public Optional<User> checkLogin(String email, String password) {
         Optional<User> userOpt = dao.getUserByEmail(email);
 
-        if (userOpt.isPresent())
-        {
+        if (userOpt.isPresent()) {
             User user = userOpt.get();
-            try
-            {
+            try {
                 String passwordHash = calculateMD5(password);
 
                 if (user.getPassword_hash().equals(passwordHash))
                     return userOpt;
                 else
                     return Optional.empty();
-            }
-            catch (NoSuchAlgorithmException e)
-            {
+            } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
                 return Optional.empty();
             }
-        }
-        else
-        {
+        } else {
             return Optional.empty();
         }
     }
 
+    // Metodos para dialogos y demas
 
-    //Metodos para dialogos y demas
-
-    public UsageStats getUsageStats(String userId)
-    {
+    public UsageStats getUsageStats(String userId) {
         return dao.getUsageStats(userId);
     }
 
-    public List<Dialogue> getAllDialoguesForUser(String userId)
-    {
+    public List<Dialogue> getAllDialoguesForUser(String userId) {
         List<String> dialogueIds = dao.getDialogueIdsByUserId(userId);
         List<Dialogue> dialogues = new ArrayList<>();
 
-        for (String dialogueId : dialogueIds)
-        {
+        for (String dialogueId : dialogueIds) {
             Dialogue d = dao.getDialogue(userId, dialogueId);
             if (d != null)
                 dialogues.add(d);
@@ -159,40 +141,49 @@ public class AppLogicImpl
         return dialogues;
     }
 
-
-    public Dialogue getDialogue(String userId, String dialogueId)
-    {
+    public Dialogue getDialogue(String userId, String dialogueId) {
         return dao.getDialogue(userId, dialogueId);
     }
 
-    public boolean createDialogue(String userId, Dialogue dialogue)
-    {
+    public boolean createDialogue(String userId, Dialogue dialogue) {
         return dao.createDialogue(userId, dialogue);
     }
 
-    public boolean addPrompt(String userId, String dialogueId, String nextUrl, Prompt prompt)
-    {
-        return dao.addPrompt(userId, dialogueId, nextUrl, prompt);
+    public boolean addPrompt(String userId, String dialogueId, String nextUrl, Prompt prompt) {
+        // Paso 1 → Añadir el prompt en la BD → status pasa a BUSY
+        boolean success = dao.addPrompt(userId, dialogueId, nextUrl, prompt);
+
+        if (success) {
+            // Paso 2 → Llamar a gRPC
+            String answer = callExternalService(prompt);
+
+            // Paso 3 → Actualizar el prompt con la respuesta
+            prompt.setAnswer(answer);
+
+            // Paso 4 → Actualizar en la BD → y status pasa a READY
+            dao.addPromptRespuesta(userId, dialogueId, prompt);
+
+            logger.info("Prompt processed: answer stored, dialogue READY.");
+        } else {
+            logger.warning("Failed to add prompt to dialogue.");
+        }
+
+        return success;
     }
 
-    public boolean addPromptRespuesta(String userId, String dialogueId, Prompt prompt)
-    {
+    public boolean addPromptRespuesta(String userId, String dialogueId, Prompt prompt) {
         return dao.addPromptRespuesta(userId, dialogueId, prompt);
     }
 
-    public boolean updateDialogueEstado(String userId, String dialogueId, DialogueEstados status)
-    {
+    public boolean updateDialogueEstado(String userId, String dialogueId, DialogueEstados status) {
         return dao.updateDialogueEstado(userId, dialogueId, status);
     }
 
-    public void createUser(User user)
-    {
+    public void createUser(User user) {
         dao.createUser(user);
     }
 
-
-    public String callExternalService(Prompt p)
-    {
+    public String callExternalService(Prompt p) {
         logger.info("Calling external gRPC service with prompt: " + p.getPrompt());
 
         PromptRequest request = PromptRequest.newBuilder().setPrompt(p.getPrompt()).build();
@@ -201,7 +192,5 @@ public class AppLogicImpl
         logger.info("Received answer from gRPC: " + response.getAnswer());
         return response.getAnswer();
     }
-
-
 
 }
