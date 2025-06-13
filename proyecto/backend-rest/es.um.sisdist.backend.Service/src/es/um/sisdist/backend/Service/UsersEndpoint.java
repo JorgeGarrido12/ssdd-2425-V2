@@ -116,7 +116,13 @@ public class UsersEndpoint
     public Response addPrompt(@PathParam("username") String username, @PathParam("dialogueId") String dialogueId, PromptDTO promptDto)
     {
         Prompt p = PromptDTOUtils.fromDTO(promptDto);
-        String nextUrl = "/u/" + username + "/dialogue/" + dialogueId + "/next/" + System.currentTimeMillis(); // Ejemplo
+
+        // Generar timestamp actual en el backend
+        long timestamp = System.currentTimeMillis();
+        p.setTimestamp(timestamp);  // IMPORTANTE → el backend pone el timestamp aquí
+
+        String nextUrl = "/u/" + username + "/dialogue/" + dialogueId + "/next/" + System.currentTimeMillis();
+        
         boolean success = impl.addPrompt(username, dialogueId, nextUrl, p);
 
         if (success)

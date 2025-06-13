@@ -36,7 +36,7 @@ public class TestClientPrueba
         response.close();
 
         // Espera 10 seg
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
 
         // Login
         System.out.println("-----> LOGIN USER");
@@ -53,7 +53,7 @@ public class TestClientPrueba
         response.close();
 
         // Espera 10 seg
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
 
         // Crear diálogo
         System.out.println("-----> CREATE DIALOGUE");
@@ -69,7 +69,7 @@ public class TestClientPrueba
         response.close();
 
         // Espera 10 seg
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
 
         // Enviar prompt
         System.out.println("-----> ADD PROMPT");
@@ -86,7 +86,7 @@ public class TestClientPrueba
         response.close();
 
         // Espera 10 seg
-        Thread.sleep(10000);
+        //Thread.sleep(10000);
 
         // Consultar estado usuario
         System.out.println("-----> GET USER INFO");
