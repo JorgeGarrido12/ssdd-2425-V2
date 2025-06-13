@@ -16,8 +16,10 @@ import es.um.sisdist.backend.grpc.GrpcServiceGrpc;
 import es.um.sisdist.backend.grpc.PingRequest;
 import es.um.sisdist.backend.dao.DAOFactoryImpl;
 import es.um.sisdist.backend.dao.IDAOFactory;
+import es.um.sisdist.backend.dao.logs.ILogsDAO;
 import es.um.sisdist.backend.dao.models.Dialogue;
 import es.um.sisdist.backend.dao.models.DialogueEstados;
+import es.um.sisdist.backend.dao.models.LogDTO;
 import es.um.sisdist.backend.dao.models.Prompt;
 import es.um.sisdist.backend.dao.models.UsageStats;
 import es.um.sisdist.backend.dao.models.User;
@@ -33,6 +35,8 @@ import io.grpc.ManagedChannelBuilder;
 public class AppLogicImpl {
     IDAOFactory daoFactory;
     IUserDAO dao;
+    ILogsDAO logsDAO;
+
 
     private static final Logger logger = Logger.getLogger(AppLogicImpl.class.getName());
 
@@ -46,22 +50,23 @@ public class AppLogicImpl {
         daoFactory = new DAOFactoryImpl();
         Optional<String> backend = Optional.ofNullable(System.getenv("DB_BACKEND"));
 
-        if (backend.isPresent() && backend.get().equals("mongo"))
+        if (backend.isPresent() && backend.get().equals("mongo")) {
             dao = daoFactory.createMongoUserDAO();
-        else
+            logsDAO = daoFactory.createSQLLogsDAO(); // Usamos también el logsDAO en mongo (aunque no haya DAO mongo de logs, puedes ponerlo a null si quieres)
+        } else {
             dao = daoFactory.createSQLUserDAO();
+            logsDAO = daoFactory.createSQLLogsDAO();
+        }
 
         var grpcServerName = Optional.ofNullable(System.getenv("GRPC_SERVER"));
         var grpcServerPort = Optional.ofNullable(System.getenv("GRPC_SERVER_PORT"));
 
         channel = ManagedChannelBuilder
                 .forAddress(grpcServerName.orElse("localhost"), Integer.parseInt(grpcServerPort.orElse("50051")))
-                // Channels are secure by default (via SSL/TLS). For the example we disable TLS
-                // to avoid needing certificates.
                 .usePlaintext().build();
         blockingStub = GrpcServiceGrpc.newBlockingStub(channel);
-        // asyncStub = GrpcServiceGrpc.newStub(channel);
     }
+
 
     public static AppLogicImpl getInstance() {
         return instance;
@@ -197,6 +202,19 @@ public class AppLogicImpl {
 
     public void createUser(User user) {
         dao.createUser(user);
+    }
+
+
+
+    //LOGS AÑADIDOS
+    public List<LogDTO> getLogsForUser(String userId)
+    {
+        return logsDAO.getLogsForUser(userId);
+    }
+
+    public boolean deleteLog(String userId, String dialogueId)
+    {
+        return logsDAO.deleteLog(userId, dialogueId);
     }
 
 

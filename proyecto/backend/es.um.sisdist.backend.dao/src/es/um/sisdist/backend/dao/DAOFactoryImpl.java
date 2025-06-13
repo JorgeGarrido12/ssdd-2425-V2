@@ -3,6 +3,10 @@
  */
 package es.um.sisdist.backend.dao;
 
+import java.util.function.Supplier;
+
+import es.um.sisdist.backend.dao.logs.ILogsDAO;
+import es.um.sisdist.backend.dao.logs.SQLLogsDAO;
 import es.um.sisdist.backend.dao.user.IUserDAO;
 import es.um.sisdist.backend.dao.user.MongoUserDAO;
 import es.um.sisdist.backend.dao.user.SQLUserDAO;
@@ -13,6 +17,8 @@ import es.um.sisdist.backend.dao.user.SQLUserDAO;
  */
 public class DAOFactoryImpl implements IDAOFactory
 {
+
+
     @Override
     public IUserDAO createSQLUserDAO()
     {
@@ -24,4 +30,10 @@ public class DAOFactoryImpl implements IDAOFactory
     {
         return null;
     }
+
+    public ILogsDAO createSQLLogsDAO()
+    {
+        return new SQLLogsDAO(); // igual que haces con SQLUserDAO
+    }
+
 }

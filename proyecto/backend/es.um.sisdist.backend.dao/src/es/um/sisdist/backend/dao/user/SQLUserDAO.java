@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
 import es.um.sisdist.backend.dao.models.Dialogue;
 import es.um.sisdist.backend.dao.models.DialogueEstados;
 import es.um.sisdist.backend.dao.models.Prompt;
@@ -403,14 +406,37 @@ public class SQLUserDAO implements IUserDAO
             stm.setString(3, userId);
 
             int rows = stm.executeUpdate();
+
+            // Si se actualizó y el nuevo estado es FINISHED → guardamos el log
+            if (rows > 0 && status == DialogueEstados.FINISHED)
+            {
+                Dialogue dialogue = getDialogue(userId, dialogueId);
+
+                // Convertir a JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                String dialogueJson = objectMapper.writeValueAsString(dialogue);
+
+                // Guardar en logs
+                PreparedStatement stmLog = conn.get().prepareStatement(
+                    "INSERT INTO logs (user_id, dialogue_id, dialogue_json, timestamp) VALUES (?, ?, ?, ?)"
+                );
+                stmLog.setString(1, userId);
+                stmLog.setString(2, dialogueId);
+                stmLog.setString(3, dialogueJson);
+                stmLog.setLong(4, System.currentTimeMillis());
+
+                stmLog.executeUpdate();
+            }
+
             return rows > 0;
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             e.printStackTrace();
             return false;
         }
     }
+
 
 
     @Override

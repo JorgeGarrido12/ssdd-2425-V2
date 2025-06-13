@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.Response;
 import es.um.sisdist.backend.Service.impl.AppLogicImpl;
 import es.um.sisdist.backend.dao.models.Dialogue;
 import es.um.sisdist.backend.dao.models.DialogueEstados;
+import es.um.sisdist.backend.dao.models.LogDTO;
 import es.um.sisdist.backend.dao.models.Prompt;
 import es.um.sisdist.models.DialogueDTO;
 import es.um.sisdist.models.DialogueDTOUtils;
@@ -18,6 +19,7 @@ import es.um.sisdist.models.UserDTO;
 import es.um.sisdist.models.UserDTOUtils;
 import es.um.sisdist.models.UserFullDTO;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -143,6 +145,28 @@ public class UsersEndpoint
             return Response.status(Response.Status.NO_CONTENT).build();
     }
 
+
+    //Endpoints para el tema de los logs
+    @GET
+    @Path("/{username}/logs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<LogDTO> getLogs(@PathParam("username") String username)
+    {
+        List<LogDTO> logs = impl.getLogsForUser(username);
+        return logs;
+    }
+
+    @DELETE
+    @Path("/{username}/logs/{dialogueId}")
+    public Response deleteLog(@PathParam("username") String username, @PathParam("dialogueId") String dialogueId)
+    {
+        boolean success = impl.deleteLog(username, dialogueId);
+
+        if (success)
+            return Response.ok().build();
+        else
+            return Response.status(Response.Status.NOT_FOUND).build();
+    }
 
 
 

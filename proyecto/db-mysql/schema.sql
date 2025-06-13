@@ -60,3 +60,12 @@ CREATE TABLE IF NOT EXISTS usage_stats (
     last_access_timestamp BIGINT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- Tabla de logs de diálogos, que tienen que estar en estado FINISHED
+CREATE TABLE logs (
+    user_id VARCHAR(255) NOT NULL,
+    dialogue_id VARCHAR(255) NOT NULL,
+    dialogue_json TEXT NOT NULL,
+    timestamp BIGINT NOT NULL,
+    PRIMARY KEY (user_id, dialogue_id)
+);
