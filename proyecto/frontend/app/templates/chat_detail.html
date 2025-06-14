@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Conversación: {{ conv.dialogueId }}</h2>
+  <p><strong>Estado actual:</strong> <span id="estado-conversacion" class="badge bg-secondary">{{ conv.status }}</span></p>
+
+
+  {% if conv.dialogue is defined and conv.dialogue | length > 0 %}
+    <ul class="list-group mb-4">
+      {% for p in conv.dialogue %}
+        <li class="list-group-item">
+          <strong>Tú:</strong> {{ p.prompt }}<br>
+          {% if p.answer %}
+            <strong>Respuesta:</strong> {{ p.answer }}
+          {% else %}
+            <em class="text-muted">[esperando respuesta]</em>
+          {% endif %}
+          <div class="text-muted" style="font-size: 0.8em;">{{ p.timestamp | datetimeformat }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No hay mensajes en esta conversación.</p>
+  {% endif %}
+
+  {% if conv.status == "READY" %}
+    <form method="POST" class="mb-3" id="prompt-form">
+
+      <div class="mb-3">
+        <input type="text" name="prompt" class="form-control" placeholder="Escribe tu mensaje..." required>
+      </div>
+      <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+
+  {% elif conv.status == "BUSY" %}
+    <div class="alert alert-warning">Esperando respuesta... Por favor, actualiza en unos segundos.</div>
+
+  {% elif conv.status == "FINISHED" %}
+    <div class="alert alert-info">Esta conversación ha sido finalizada. Ya no se pueden enviar nuevos mensajes.</div>
+  {% endif %}
+
+  {% if conv.status != "FINISHED" %}
+    <form method="POST" action="{{ url_for('end_conversation', dialogue_id=conv.dialogueId) }}">
+      <button type="submit" class="btn btn-danger mt-2">Terminar conversación</button>
+    </form>
+  {% endif %}
+
+  {% if error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+  {% endif %}
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("prompt-form");
+    const estadoSpan = document.getElementById("estado-conversacion");
+
+    if (form && estadoSpan) {
+      form.addEventListener("submit", function () {
+        // Cambiar visualmente el estado a BUSY antes de que el form se envíe
+        estadoSpan.textContent = "BUSY";
+        estadoSpan.classList.remove("bg-secondary");
+        estadoSpan.classList.remove("bg-success");
+        estadoSpan.classList.add("bg-warning");
+      });
+    }
+  });
+</script>
+
+{% endblock %}

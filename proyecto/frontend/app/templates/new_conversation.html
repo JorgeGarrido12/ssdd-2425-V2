@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 600px;">
+  <h2 class="mt-4">Nueva conversación</h2>
+
+  {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    <div class="mb-3">
+      <label for="title" class="form-label">Título de la conversación (ID):</label>
+      <input type="text" class="form-control" name="title" id="title" required>
+    </div>
+
+    {# Campo opcional si quieres iniciar con un mensaje inicial (de momento lo omitimos) #}
+    {# 
+    <div class="mb-3">
+      <label for="first_message" class="form-label">Primer mensaje (opcional):</label>
+      <textarea class="form-control" name="first_message" id="first_message" rows="3"></textarea>
+    </div>
+    #}
+
+    <button type="submit" class="btn btn-primary">Crear conversación</button>
+    <a href="{{ url_for('conversations') }}" class="btn btn-link">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
