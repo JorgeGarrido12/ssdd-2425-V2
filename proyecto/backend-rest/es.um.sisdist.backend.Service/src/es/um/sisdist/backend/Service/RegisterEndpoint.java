@@ -15,22 +15,29 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/register")
-public class RegisterEndpoint
-{
+public class RegisterEndpoint {
     private AppLogicImpl impl = AppLogicImpl.getInstance();
 
-
-    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerUser(UserDTO uo)
-    {
+    public Response registerUser(UserDTO uo) {
         User newUser = UserDTOUtils.fromDTO(uo);
         newUser.setVisits(0); // el backend controla visits
 
+        // Creamos el usuario
         impl.createUser(newUser);
 
-        return Response.status(Response.Status.CREATED).build();
+        // Recuperamos el usuario desde la base de datos con su ID generado
+        var userOpt = impl.getUserByEmail(newUser.getEmail());
+        if (userOpt.isEmpty())
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No se pudo registrar el usuario.")
+                    .build();
+
+        UserDTO dto = UserDTOUtils.toDTO(userOpt.get());
+
+        // Devolver DTO completo con id, name, email, token, visits
+        return Response.status(Response.Status.CREATED).entity(dto).build();
     }
+
 }

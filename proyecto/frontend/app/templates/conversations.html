@@ -1,25 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Tus conversaciones</h1>
+<h1 class="mt-4">Tus conversaciones</h1>
 
 {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
+  <div class="alert alert-danger">{{ error }}</div>
 {% endif %}
 
 {% if convs %}
-    <ul>
-        {% for c in convs.conversations %}  {# o como venga en el JSON #}
-            <li>
-                <a href="{{ url_for('chat_detail', dialogue_id=c.dialogue_id) }}">{{ c.dialogue_id }}</a>
-                <a href="{{ url_for('delete_conversation', dialogue_id=c.dialogue_id) }}">[Eliminar]</a>
-            </li>
-        {% endfor %}
-    </ul>
+  <ul class="list-group mt-4">
+    {% for c in convs %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span><strong>{{ c.dialogueId }}</strong> — Estado: {{ c.status }}</span>
+        <a href="{{ url_for('chat_detail', dialogue_id=c.dialogueId) }}" class="btn btn-primary btn-sm">Ver</a>
+      </li>
+    {% endfor %}
+  </ul>
 {% else %}
-    <p>No tienes conversaciones.</p>
+  <p class="mt-4">No tienes conversaciones activas.</p>
 {% endif %}
 
-<a href="{{ url_for('new_conversation') }}">Nueva conversación</a>
-
+<a href="{{ url_for('new_conversation') }}" class="btn btn-success mt-3">Nueva conversación</a>
 {% endblock %}

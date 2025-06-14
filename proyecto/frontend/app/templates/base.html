@@ -37,7 +37,7 @@
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="{{ url_for('index') }}">
-        Mi magnífica aplicación
+        LlamaChat
       </a>
       <button 
         class="navbar-toggler" 
@@ -61,19 +61,20 @@
               Inicio
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Enlace 1</a>
-          </li>
+          
 
           {% if session.get("user_id") %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
+            <a class="nav-link" href="{{ url_for('profile') }}">Perfil</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('conversations') }}">Conversaciones</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('new_conversation') }}">Nueva conversación</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logs') }}">Logs</a>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled" tabindex="-1" aria-disabled="true">
@@ -85,10 +86,10 @@
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+            <a class="nav-link" href="{{ url_for('login') }}">Iniciar Sesion</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('signup') }}">Sign Up</a>
+            <a class="nav-link" href="{{ url_for('signup') }}">Registrarse</a>
           </li>
         {% endif %}
 

@@ -127,8 +127,10 @@ public class UsersEndpoint
         
         boolean success = impl.addPrompt(username, dialogueId, nextUrl, p);
 
-        if (success)
-            return Response.status(Response.Status.CREATED).header("Location", nextUrl).build();
+        if (success){
+            Dialogue updated = impl.getDialogue(username, dialogueId);
+            return Response.status(Response.Status.CREATED).entity(DialogueDTOUtils.toDTO(updated)).build();
+        }
         else
             return Response.status(Response.Status.NO_CONTENT).build();
     }
