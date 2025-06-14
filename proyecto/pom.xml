@@ -14,7 +14,7 @@
         <module>backend-rest/es.um.sisdist.backend.Service</module>
         <module>backend-grpc/es.um.sisdist.backend.grpc.GrpcService</module>
         <module>backend-grpc/es.um.sisdist.backend.grpc.GrpcServiceImpl</module>
-        <module>backend-rest-externo</module>
+        <!-- <module>backend-rest-externo</module> -->
     </modules>
 
 </project>
