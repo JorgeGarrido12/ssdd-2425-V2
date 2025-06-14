@@ -35,9 +35,6 @@ public class TestClientPrueba
         System.out.println("Body: " + response.readEntity(String.class));
         response.close();
 
-        // Espera 10 seg
-        //Thread.sleep(10000);
-
         // Login
         System.out.println("-----> LOGIN USER");
         String loginJson = "{"
@@ -52,9 +49,6 @@ public class TestClientPrueba
         System.out.println("Body: " + response.readEntity(String.class));
         response.close();
 
-        // Espera 10 seg
-        //Thread.sleep(10000);
-
         // Crear diálogo
         System.out.println("-----> CREATE DIALOGUE");
         String dialogueJson = "{"
@@ -67,9 +61,6 @@ public class TestClientPrueba
         System.out.println("Status: " + response.getStatus());
         System.out.println("Body: " + response.readEntity(String.class));
         response.close();
-
-        // Espera 10 seg
-        //Thread.sleep(10000);
 
         // Enviar prompt
         System.out.println("-----> ADD PROMPT");
@@ -85,8 +76,30 @@ public class TestClientPrueba
         System.out.println("Body: " + response.readEntity(String.class));
         response.close();
 
-        // Espera 10 seg
-        //Thread.sleep(10000);
+        // Terminar diálogo (para que se guarde el log)
+        System.out.println("-----> END DIALOGUE");
+        response = service.path("u").path("testuser1").path("dialogue").path("testDialogue1").path("end")
+                .request(MediaType.APPLICATION_JSON)
+                .post(null);
+        System.out.println("Status: " + response.getStatus());
+        response.close();
+
+        // Consultar logs del usuario
+        System.out.println("-----> GET LOGS");
+        response = service.path("u").path("testuser1").path("logs")
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+        System.out.println("Status: " + response.getStatus());
+        System.out.println("Body: " + response.readEntity(String.class));
+        response.close();
+
+        // Eliminar log del diálogo
+        System.out.println("-----> DELETE LOG");
+        response = service.path("u").path("testuser1").path("logs").path("testDialogue1")
+                .request(MediaType.APPLICATION_JSON)
+                .delete();
+        System.out.println("Status: " + response.getStatus());
+        response.close();
 
         // Consultar estado usuario
         System.out.println("-----> GET USER INFO");
@@ -98,7 +111,6 @@ public class TestClientPrueba
         response.close();
 
         System.out.println("-----> TEST FINISHED");
-
 
         // Auto-observador → bucle infinito haciendo GET cada 5 seg
         System.out.println("-----> STARTING AUTO-OBSERVE MODE (CTRL+C to stop)");
@@ -117,10 +129,8 @@ public class TestClientPrueba
 
     }
 
-    // Esta función no la usamos → puedes eliminarla si quieres
     private static URI getBaseURI()
     {
-        return UriBuilder.fromUri(
-                "http://localhost:8080/es.um.sisdist.RestTest").build();
+        return UriBuilder.fromUri("http://localhost:8080/es.um.sisdist.RestTest").build();
     }
 }
