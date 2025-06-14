@@ -90,43 +90,46 @@ def login():
 def signup():
     form = RegisterForm()
 
-    if request.method == 'POST' and form.validate_on_submit():
-        email = form.email.data
-        name = form.username.data
-        password = form.password.data
-        password2 = form.confirm.data
+    if request.method == 'POST':
+        # Obtenemos los campos del formulario manualmente
+        email = request.form.get('email')
+        name = request.form.get('username')
+        password = request.form.get('password')
+        password2 = request.form.get('confirm')
 
+        # Validación manual: contraseñas iguales
         if password != password2:
             error = "Las contraseñas no coinciden"
             return render_template('signup.html', form=form, error=error)
 
-        # Petición al backend REST
-        try:
-            url_backend =  "http://backend-rest:8080/Service/register"
+        # Validación completa del formulario
+        if form.validate_on_submit():
+            try:
+                url_backend = "http://backend-rest:8080/Service/register"
 
-            payload = {
-                "id": name,
-                "email": email,
-                "name": name,
-                "password": password
-            }
+                payload = {
+                    "id": name,
+                    "email": email,
+                    "name": name,
+                    "password": password
+                }
 
-            response = requests.post(url_backend, json=payload)
+                response = requests.post(url_backend, json=payload)
 
-            if response.status_code == 201:
-                user_data = response.json()
-                session["user_id"] = user_data["id"]
-                session["token_privado"] = user_data["token"]
+                if response.status_code == 201:
+                    user_data = response.json()
+                    session["user_id"] = user_data["id"]
+                    session["token_privado"] = user_data["token"]
 
-                return redirect(url_for('profile'))
+                    return redirect(url_for('profile'))
 
-            else:
-                error = f"Error al registrar usuario: {response.status_code} {response.text}"
+                else:
+                    error = f"Error al registrar usuario: {response.status_code} {response.text}"
+                    return render_template('signup.html', form=form, error=error)
+
+            except Exception as e:
+                error = f"Error al conectar con el backend: {str(e)}"
                 return render_template('signup.html', form=form, error=error)
-
-        except Exception as e:
-            error = f"Error al conectar con el backend: {str(e)}"
-            return render_template('signup.html', form=form, error=error)
 
     return render_template('signup.html', form=form)
 
