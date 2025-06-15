@@ -121,8 +121,13 @@ def signup():
                 return redirect(url_for('profile'))
 
             else:
-                error = f"Error al registrar usuario: {response.status_code} {response.text}"
+                if response.status_code == 409:
+                    error_msg = response.json().get("error", "El email ya está registrado.")
+                    error = error_msg
+                else:
+                    error = f"Error al registrar usuario: {response.status_code}"
                 return render_template('signup.html', form=form, error=error)
+
 
         except Exception as e:
             error = f"Error al conectar con el backend: {str(e)}"

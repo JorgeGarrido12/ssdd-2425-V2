@@ -113,21 +113,25 @@ public class SQLUserDAO implements IUserDAO
     }
 
     @Override
-    public void createUser(User user)
-    {
-        PreparedStatement stm;
-        try
-        {
+    public boolean createUser(User user) {
+        try {
             // Calcular el token MD5 antes de insertar
             String token = calculateMD5Token(user);
             user.setToken(token);
 
-            // Hashear la password que viene del User
+            // Hashear la password
             String passwordHash = calculateMD5(user.getPassword_hash());
             user.setPassword_hash(passwordHash);
 
+            // Comprobar si ya existe ese email
+            if (getUserByEmail(user.getEmail()).isPresent()) {
+                return false; // Email ya registrado
+            }
+
             // Insertar en users
-            stm = conn.get().prepareStatement("INSERT INTO users (id, email, password_hash, name, token, visits) VALUES (?, ?, ?, ?, ?, ?)");
+            PreparedStatement stm = conn.get().prepareStatement(
+                "INSERT INTO users (id, email, password_hash, name, token, visits) VALUES (?, ?, ?, ?, ?, ?)"
+            );
             stm.setString(1, user.getId());
             stm.setString(2, user.getEmail());
             stm.setString(3, user.getPassword_hash());
@@ -147,16 +151,14 @@ public class SQLUserDAO implements IUserDAO
             stmStats.setLong(4, System.currentTimeMillis());
 
             stmStats.executeUpdate();
-        }
-        catch (SQLException e)
-        {
+
+            return true;
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
+            return false;
         }
     }
+
 
 
     private String calculateMD5(String input) throws NoSuchAlgorithmException {

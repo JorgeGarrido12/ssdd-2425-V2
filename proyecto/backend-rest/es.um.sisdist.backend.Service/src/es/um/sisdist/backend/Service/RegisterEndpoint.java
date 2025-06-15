@@ -25,19 +25,23 @@ public class RegisterEndpoint {
         User newUser = UserDTOUtils.fromDTO(uo);
         newUser.setVisits(0); // el backend controla visits
 
-        // Creamos el usuario
-        impl.createUser(newUser);
+        boolean success = impl.createUser(newUser);
 
-        // Recuperamos el usuario desde la base de datos con su ID generado
+        if (!success) {
+            return Response.status(Response.Status.CONFLICT)
+                        .entity("{\"error\": \"El email ya está registrado.\"}")
+                        .build();
+        }
+
         var userOpt = impl.getUserByEmail(newUser.getEmail());
         if (userOpt.isEmpty())
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No se pudo registrar el usuario.")
-                    .build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("{\"error\": \"No se pudo registrar el usuario.\"}")
+                        .build();
 
         UserDTO dto = UserDTOUtils.toDTO(userOpt.get());
-
-        // Devolver DTO completo con id, name, email, token, visits
         return Response.status(Response.Status.CREATED).entity(dto).build();
     }
+
 
 }

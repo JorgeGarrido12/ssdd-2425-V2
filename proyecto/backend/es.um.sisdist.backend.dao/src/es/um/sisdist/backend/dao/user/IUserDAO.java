@@ -15,7 +15,7 @@ public interface IUserDAO
 
     public Optional<User> getUserByEmail(String id);
 
-    void createUser(User user);
+    boolean createUser(User user);
 
     void updateVisits(String id, int visits);
 

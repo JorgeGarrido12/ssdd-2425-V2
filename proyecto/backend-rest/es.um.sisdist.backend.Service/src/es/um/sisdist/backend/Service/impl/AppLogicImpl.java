@@ -200,9 +200,10 @@ public class AppLogicImpl {
         return dao.updateDialogueEstado(userId, dialogueId, status);
     }
 
-    public void createUser(User user) {
-        dao.createUser(user);
+    public boolean createUser(User user) {
+        return dao.createUser(user);
     }
+
 
 
 
