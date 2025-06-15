@@ -14,7 +14,7 @@
         <module>backend-rest/es.um.sisdist.backend.Service</module>
         <module>backend-grpc/es.um.sisdist.backend.grpc.GrpcService</module>
         <module>backend-grpc/es.um.sisdist.backend.grpc.GrpcServiceImpl</module>
-        <!-- <module>backend-rest-externo</module> -->
+         <module>backend-rest-externo</module> <!-- Este modulo es el que comento para poder funcionar, estando sin comentar da error el mvn clean install -DskipTest    -->
     </modules>
 
 </project>
