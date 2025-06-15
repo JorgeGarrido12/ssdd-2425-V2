@@ -92,7 +92,8 @@ def signup():
 
     if request.method == 'POST' and form.validate_on_submit():
         email = form.email.data
-        name = form.username.data
+        name = form.name.data
+        username = form.username.data  
         password = form.password.data
         password2 = form.confirm.data
 
@@ -105,7 +106,7 @@ def signup():
             url_backend =  "http://backend-rest:8080/Service/register"
 
             payload = {
-                "id": name,
+                "id": username,
                 "email": email,
                 "name": name,
                 "password": password
