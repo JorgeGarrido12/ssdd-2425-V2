@@ -8,9 +8,12 @@ import jakarta.ws.rs.container.PreMatching;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
+import es.um.sisdist.backend.dao.user.IUserDAO;
+import es.um.sisdist.backend.dao.user.SQLUserDAO;
+import es.um.sisdist.backend.dao.models.User;
 
 import java.util.Optional;
-    
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
