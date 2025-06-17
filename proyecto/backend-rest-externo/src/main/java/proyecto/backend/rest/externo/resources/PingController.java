@@ -12,6 +12,6 @@ public class PingController {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response ping() {
-        return Response.ok("pong externo").build();
+        return Response.ok("Pong al rest-externo funcionando perfectamente").build();
     }
 }

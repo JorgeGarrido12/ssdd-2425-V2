@@ -20,8 +20,7 @@ import proyecto.backend.rest.externo.service.GrpcDialogueService;
 @Consumes(MediaType.APPLICATION_JSON)
 public class DialogueController {
 
-    @Inject
-    GrpcDialogueService grpcDialogueService;
+    private final GrpcDialogueService grpcDialogueService = new GrpcDialogueService();
 
     AppLogicImpl impl = AppLogicImpl.getInstance();
 

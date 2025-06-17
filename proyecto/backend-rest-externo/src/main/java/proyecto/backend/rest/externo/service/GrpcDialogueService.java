@@ -14,7 +14,7 @@ public class GrpcDialogueService {
     private final GrpcServiceGrpc.GrpcServiceBlockingStub grpcStub;
 
     public GrpcDialogueService() {
-        this.channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+        this.channel = ManagedChannelBuilder.forAddress("proyecto-backend-grpc", 50051) 
                                             .usePlaintext()
                                             .build();
         this.grpcStub = GrpcServiceGrpc.newBlockingStub(channel);

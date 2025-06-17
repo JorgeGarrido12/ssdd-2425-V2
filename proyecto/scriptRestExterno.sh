@@ -1,8 +1,8 @@
 #!/bin/bash
 
-USERNAME="usuario133"
-EMAIL="usuario133@gmail.es"
-PASSWORD="usuario133"
+USERNAME="usuario12"
+EMAIL="usuario12@gmail.es"
+PASSWORD="usuario12"
 HOST="http://localhost:8180/u"
 CONTENT_TYPE="Content-Type: application/json"
 USER="User: $USERNAME"
@@ -70,7 +70,7 @@ make_request "GET" "$USERNAME/dialogue/test" ""
 echo -e "\n\n Enviar prompt:\n"
 diag="test"
 timestamp=$(date +%s)
-make_request "POST" "$USERNAME/dialogue/$diag/next" "{\"timestamp\": $timestamp, \"prompt\": \"Hola, ¿cómo estás?\"}"
+make_request "POST" "$USERNAME/dialogue/$diag/next" "{\"prompt\": \"¿Cuál es la capital de Italia?\"}"
 
 
 # Finalizar diálogo
