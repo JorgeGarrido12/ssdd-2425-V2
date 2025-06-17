@@ -65,9 +65,9 @@ public class TestClientPrueba
         // Enviar prompt
         System.out.println("-----> ADD PROMPT");
         String promptJson = "{"
-            + "\"prompt\": \"Hola, ¿cómo estás?\","
-            + "\"timestamp\": 123456789"
+            + "\"prompt\": \"¿Cual es la capital de Francia?\""
             + "}";
+
 
         response = service.path("u").path("testuser1").path("dialogue").path("testDialogue1").path("next")
                 .request(MediaType.APPLICATION_JSON)

@@ -1,0 +1,83 @@
+services:
+
+  db-mysql:
+    image: ssdd-db-mysql
+    ports:
+      - 3306:3306
+    env_file: sql.env
+    volumes:
+      - db-mysql-data:/var/lib/mysql
+    networks:
+      - sisnet
+    deploy:
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+
+  backend-rest:
+    image: ssdd-backend-rest
+    ports:
+      - 8080:8080
+    env_file: sql.env
+    networks:
+      - sisnet
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  backend-grpc:
+    image: ssdd-backend-grpc
+    ports:
+      - 50051:50051
+    env_file: sql.env
+    networks:
+      - sisnet
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  backend-rest-externo:
+    image: ssdd-backend-rest-externo
+    ports:
+      - 8180:8080
+    env_file: sql.env
+    networks:
+      - sisnet
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  ssdd-frontend:
+    image: ssdd-frontend
+    ports:
+      - 5010:5010
+    env_file: sql.env
+    environment:
+      - FLASK_APP=app/app.py
+      - FLASK_DEBUG=true
+      - PORT=5010
+    volumes:
+      - ./frontend:/ssdd-frontend
+    networks:
+      - sisnet
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  ssdd-llamachat:
+    image: dsevilla/ssdd-llamachat:1.0
+    ports:
+      - 5020:5020
+    networks:
+      - sisnet
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  db-mysql-data:
+
+networks:
+  sisnet:
