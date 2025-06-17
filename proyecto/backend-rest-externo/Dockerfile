@@ -1,8 +1,3 @@
-FROM openjdk:17-jdk-slim
-
-COPY target/backend-rest-externo-1.0-SNAPSHOT-jar-with-dependencies.jar /app/app.jar
-
-WORKDIR /app
-EXPOSE 8180
-
-CMD ["java", "-jar", "app.jar"]
+FROM tomcat:9.0-jdk17
+EXPOSE 8080
+COPY target/backend-rest-external-1.0.war /usr/local/tomcat/webapps/ROOT.war

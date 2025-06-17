@@ -1,5 +1,5 @@
 #! /usr/bin/env make -f
-SUBDIRS = frontend backend backend-grpc backend-rest
+SUBDIRS = frontend backend backend-grpc backend-rest backend-rest-externo
 
 all: $(SUBDIRS)
 
