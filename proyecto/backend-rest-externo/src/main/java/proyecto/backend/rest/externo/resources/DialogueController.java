@@ -42,8 +42,8 @@ public class DialogueController {
     @POST
     @Path("/{dialogueId}/next")
     public Response sendPrompt(@PathParam("userId") String userId,
-                               @PathParam("dialogueId") String dialogueId,
-                               PromptDTO promptDto) {
+                            @PathParam("dialogueId") String dialogueId,
+                            PromptDTO promptDto) {
         Prompt p = PromptDTOUtils.fromDTO(promptDto);
 
         // Generar timestamp actual en el backend
@@ -51,19 +51,29 @@ public class DialogueController {
         p.setTimestamp(timestamp);
 
         // Generar nextUrl con token nuevo
-        String nextUrl = "/u/" + userId + "/dialogue/" + dialogueId + "/next/" + System.currentTimeMillis();
+        String nextUrl = "/u/" + userId + "/dialogue/" + dialogueId + "/next/" + timestamp;
 
-        // GRPC → solo se envía el prompt y timestamp
-        boolean accepted = grpcDialogueService.sendPrompt(
-            userId, dialogueId, p.getPrompt(), String.valueOf(timestamp)  // Aquí usas el timestamp que acabas de generar
-        );
+        // Paso 1 → Guarda el prompt en la BD
+        boolean success = impl.addPrompt(userId, dialogueId, nextUrl, p);  // Llama a AppLogicImpl
 
-        if (accepted) {
-            return Response.status(Response.Status.CREATED).header("Location", nextUrl).build();
+        // Paso 2 → Si fue bien, llama a gRPC (sincrónico)
+        if (success) {
+            boolean accepted = grpcDialogueService.sendPrompt(
+                userId, dialogueId, p.getPrompt(), String.valueOf(timestamp)
+            );
+
+            if (accepted) {
+                return Response.status(Response.Status.CREATED).header("Location", nextUrl).build();
+            } else {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity("gRPC no aceptó el prompt")
+                            .build();
+            }
         } else {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
     }
+
 
     // Terminar diálogo → /end → usa AppLogicImpl
     @POST
