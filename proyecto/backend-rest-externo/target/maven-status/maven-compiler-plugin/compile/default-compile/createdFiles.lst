@@ -1,0 +1,6 @@
+proyecto/backend/rest/externo/auth/AuthFilter.class
+proyecto/backend/rest/externo/resources/PingController.class
+proyecto/backend/rest/externo/service/GrpcDialogueService.class
+proyecto/backend/rest/externo/resources/UserController.class
+proyecto/backend/rest/externo/resources/DialogueController.class
+proyecto/backend/rest/externo/RestApplication.class

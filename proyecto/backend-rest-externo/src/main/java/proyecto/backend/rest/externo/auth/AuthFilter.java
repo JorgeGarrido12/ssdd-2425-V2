@@ -28,17 +28,22 @@ public class AuthFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
+        String path = requestContext.getUriInfo().getPath();
+
+        //Excluir el endpoint /ping de la autenticación
+        if (path.equals("ping")) {
+            return; // Permite el acceso libre
+        }
+
         String userId = requestContext.getHeaderString("User");
         String dateHeader = requestContext.getHeaderString("Date");
         String authToken = requestContext.getHeaderString("Auth-Token");
 
-        // Comprobamos que vengan las cabeceras necesarias
         if (userId == null || dateHeader == null || authToken == null) {
             abortWithUnauthorized(requestContext, "Missing authentication headers");
             return;
         }
 
-        // Recuperamos el TOKEN privado del usuario desde la BD
         String userPrivateToken = getUserPrivateToken(userId);
 
         if (userPrivateToken == null) {
@@ -46,18 +51,13 @@ public class AuthFilter implements ContainerRequestFilter {
             return;
         }
 
-        // Construimos la cadena a hashear → URL + Date + TOKEN_PRIVADO
         String urlPath = requestContext.getUriInfo().getRequestUri().getPath();
         String stringToHash = urlPath + dateHeader + userPrivateToken;
-
         String calculatedHash = md5(stringToHash);
 
-        // Comparamos con el Auth-Token recibido
         if (!calculatedHash.equalsIgnoreCase(authToken)) {
             abortWithUnauthorized(requestContext, "Invalid Auth-Token");
         }
-
-        // Si todo OK → se permite la petición
     }
 
     private void abortWithUnauthorized(ContainerRequestContext requestContext, String message) {
@@ -86,17 +86,10 @@ public class AuthFilter implements ContainerRequestFilter {
         try {
             IUserDAO dao = new SQLUserDAO();
             Optional<User> userOpt = dao.getUserById(userId);
-
-            if (userOpt.isEmpty()) {
-                return null;  // Usuario no existe
-            }
-
-            return userOpt.get().getToken();  // Devolvemos el TOKEN privado
-        }
-        catch (Exception e) {
+            return userOpt.map(User::getToken).orElse(null);
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-
 }
