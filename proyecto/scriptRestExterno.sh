@@ -1,8 +1,8 @@
 #!/bin/bash
 
-USERNAME="usuario12"
-EMAIL="usuario12@gmail.es"
-PASSWORD="usuario12"
+USERNAME="usuario33"
+EMAIL="usuario33@gmail.es"
+PASSWORD="usuario33"
 HOST="http://localhost:8180/u"
 CONTENT_TYPE="Content-Type: application/json"
 USER="User: $USERNAME"
@@ -60,17 +60,34 @@ make_request "GET" "$USERNAME" ""
 
 # Crear diálogo
 echo -e "\n\n Crear diálogo:\n"
-make_request "POST" "$USERNAME/dialogue" '{"dialogueId": "test"}'
+make_request "POST" "$USERNAME/dialogue" '{"dialogueId": "test-rest-externo"}'
 
 # Consultar diálogo
 echo -e "\n\n Consultar diálogo:\n"
-make_request "GET" "$USERNAME/dialogue/test" ""
+make_request "GET" "$USERNAME/dialogue/test-rest-externo" ""
 
 # Enviar prompt
 echo -e "\n\n Enviar prompt:\n"
-diag="test"
+diag="test-rest-externo"
 timestamp=$(date +%s)
 make_request "POST" "$USERNAME/dialogue/$diag/next" "{\"prompt\": \"¿Cuál es la capital de Italia?\"}"
+
+
+echo -e "\n\n Esperando respuesta real (máx 60s):\n"
+for i in {1..60}; do
+    result=$(make_request "GET" "$USERNAME/dialogue/$diag" "")
+    
+    # Verifica que haya al menos un prompt con answer no null
+    if echo "$result" | jq -e '.dialogue | map(select(.answer != null)) | length > 0' > /dev/null 2>&1; then
+        break
+    fi
+
+    sleep 1
+done
+
+
+echo -e "\n\n Diálogo con respuesta:\n"
+make_request "GET" "$USERNAME/dialogue/$diag" ""
 
 
 # Finalizar diálogo
@@ -83,7 +100,7 @@ make_request "GET" "$USERNAME/logs" ""
 
 # Borrar log
 echo -e "\n\n Borrar log del diálogo:\n"
-make_request "DELETE" "$USERNAME/logs/test" ""
+make_request "DELETE" "$USERNAME/logs/test-rest-externo" ""
 
 # Confirmar borrado
 echo -e "\n\n Consultar logs después del borrado:\n"

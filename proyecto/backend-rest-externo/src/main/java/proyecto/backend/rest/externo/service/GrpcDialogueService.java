@@ -14,13 +14,18 @@ public class GrpcDialogueService {
     private final GrpcServiceGrpc.GrpcServiceBlockingStub grpcStub;
 
     public GrpcDialogueService() {
-        this.channel = ManagedChannelBuilder.forAddress("proyecto-backend-grpc", 50051) 
+        this.channel = ManagedChannelBuilder.forAddress("backend-grpc", 50051) 
                                             .usePlaintext()
                                             .build();
         this.grpcStub = GrpcServiceGrpc.newBlockingStub(channel);
     }
 
     public boolean sendPrompt(String userId, String dialogueId, String prompt, String timestamp) {
+        ManagedChannel tempChannel = ManagedChannelBuilder.forAddress("backend-grpc", 50051)
+                                                .usePlaintext()
+                                                .build();
+        GrpcServiceGrpc.GrpcServiceBlockingStub tempStub = GrpcServiceGrpc.newBlockingStub(tempChannel);
+
         PromptRequest request = PromptRequest.newBuilder()
             .setUserId(userId)
             .setDialogueId(dialogueId)
@@ -28,10 +33,13 @@ public class GrpcDialogueService {
             .setTimestamp(timestamp)
             .build();
 
-        PromptResponse response = grpcStub.askPrompt(request);
+        PromptResponse response = tempStub.askPrompt(request);
+
+        tempChannel.shutdownNow();  // <- así no quedan canales vivos en memoria
 
         return response.getSuccess();
     }
+
 
     public void shutdown() {
         channel.shutdown();
