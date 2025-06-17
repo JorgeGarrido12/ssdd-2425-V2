@@ -1,11 +1,13 @@
 package proyecto.backend.rest.externo.resources;
 
-import es.um.sisdist.backend.Service.impl.AppLogicImpl;
+
 import es.um.sisdist.backend.dao.models.Dialogue;
 import es.um.sisdist.backend.dao.models.LogDTO;
-import es.um.sisdist.models.DialogueDTO;
-import es.um.sisdist.models.DialogueDTOUtils;
-import es.um.sisdist.models.UserFullDTO;
+
+import proyecto.backend.rest.externo.impl.AppLogicImpl;
+import proyecto.backend.rest.externo.models.DialogueDTO;
+import proyecto.backend.rest.externo.models.DialogueDTOUtils;
+import proyecto.backend.rest.externo.models.UserFullDTO;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

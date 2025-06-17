@@ -1,0 +1,11 @@
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/models/UserFullDTO.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/models/DialogueDTO.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/service/GrpcDialogueService.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/auth/AuthFilter.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/impl/AppLogicImpl.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/models/PromptDTOUtils.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/RestApplication.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/resources/DialogueController.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/resources/UserController.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/models/DialogueDTOUtils.java
+/home/jorge/Escritorio/SSDD/ssdd-2425-V2/proyecto/backend-rest/es.um.sisdist.backend.restexterno/src/main/java/proyecto/backend/rest/externo/models/PromptDTO.java

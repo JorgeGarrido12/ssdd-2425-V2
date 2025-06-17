@@ -6,13 +6,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>es.um.sisdist</groupId>
-  <artifactId>backend-rest-external</artifactId>
+  <artifactId>ServiceExterno</artifactId>
   <version>1.0</version>
   <packaging>war</packaging>
 
   <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <jersey.version>3.1.9</jersey.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <failOnMissingWebXml>false</failOnMissingWebXml>
@@ -26,7 +26,7 @@
       <version>2.10.1</version>
     </dependency>
 
-    <!-- Jersey + Grizzly + JSON-Jackson -->
+    <!-- Jersey +  + JSON-Jackson -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-servlet</artifactId>
@@ -40,11 +40,6 @@
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-jackson</artifactId>
-      <version>${jersey.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>${jersey.version}</version>
     </dependency>
 
@@ -71,7 +66,6 @@
       <groupId>jakarta.annotation</groupId>
       <artifactId>jakarta.annotation-api</artifactId>
       <version>2.1.0</version>
-      <scope>provided</scope>
     </dependency>
 
     <!-- JAXB -->
@@ -93,14 +87,6 @@
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
-    <!-- ─── YOUR SERVICE CLASSES (AppLogicImpl, etc.) ─── -->
-    <dependency>
-      <groupId>es.um.sisdist.backend</groupId>
-      <artifactId>Service</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <classifier>classes</classifier>
-    </dependency>
-
     <!-- gRPC client -->
     <dependency>
       <groupId>es.um.sisdist.backend.grpc</groupId>
@@ -118,7 +104,7 @@
   </dependencies>
 
   <build>
-    <finalName>${project.artifactId}-${project.version}</finalName>
+    <finalName>ServiceExterno</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

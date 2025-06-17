@@ -1,18 +1,21 @@
 package proyecto.backend.rest.externo.resources;
 
-import es.um.sisdist.backend.Service.impl.AppLogicImpl;
 import es.um.sisdist.backend.dao.models.Dialogue;
 import es.um.sisdist.backend.dao.models.DialogueEstados;
 import es.um.sisdist.backend.dao.models.Prompt;
-import es.um.sisdist.models.DialogueDTO;
-import es.um.sisdist.models.DialogueDTOUtils;
-import es.um.sisdist.models.PromptDTO;
-import es.um.sisdist.models.PromptDTOUtils;
+
+
+import proyecto.backend.rest.externo.impl.AppLogicImpl;
+import proyecto.backend.rest.externo.models.DialogueDTO;
+import proyecto.backend.rest.externo.models.DialogueDTOUtils;
+import proyecto.backend.rest.externo.models.PromptDTO;
+import proyecto.backend.rest.externo.models.PromptDTOUtils;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 import proyecto.backend.rest.externo.service.GrpcDialogueService;
 
 @Path("/u/{userId}/dialogue")

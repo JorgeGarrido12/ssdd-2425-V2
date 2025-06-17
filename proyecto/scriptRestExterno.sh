@@ -1,26 +1,39 @@
 #!/bin/bash
 
-USERNAME="usuario1"
-EMAIL="usuario1@gmail.es"
-PASSWORD="usuario1"
-HOST="http://localhost:8180/Service/u"
+USERNAME="usuario13"
+EMAIL="usuario13@gmail.es"
+PASSWORD="usuario13"
+HOST="http://localhost:8180/ServiceExterno/u"
 CONTENT_TYPE="Content-Type: application/json"
 USER="User: $USERNAME"
 
-# Obtener el token desde el backend interno (donde se guarda el real)
-get_real_token() {
-    curl -s "http://localhost:8080/Service/u/$USERNAME" | jq -r '.token'
-}
-
-# Obtener el token real una vez registrado
-USER_TOKEN=$(get_real_token)
-
 # Función para generar tokens MD5 válidos según el enunciado
 generate_token() {
-    local url=$1
+    local full_url=$1
     local date=$2
-    echo -n "$url$date$USER_TOKEN" | md5sum | awk '{print $1}'
+
+    # Extraer solo el path (quita el protocolo, host y puerto)
+    local path=$(echo "$full_url" | sed -E 's|^https?://[^/]+||')
+
+    echo -n "$path$date$USER_TOKEN" | md5sum | awk '{print $1}'
 }
+
+RESPONSE=$(curl -s -X POST http://localhost:8080/Service/register \
+     -H "Content-Type: application/json" \
+     -d "{\"id\": \"$USERNAME\", \"name\": \"$USERNAME\", \"password\": \"$PASSWORD\", \"email\": \"$EMAIL\"}")
+
+# Mostrar por si viene con error (útil para depuración)
+echo ">>> Respuesta al registro:"
+echo "$RESPONSE"
+
+# Extraer token solo si contiene el campo .token
+if echo "$RESPONSE" | jq -e '.token' > /dev/null 2>&1; then
+    USER_TOKEN=$(echo "$RESPONSE" | jq -r '.token')
+else
+    echo "Error: no se pudo extraer el token. Respuesta inesperada del backend."
+    exit 1
+fi
+
 
 # Función para hacer peticiones autenticadas
 make_request() {
@@ -33,27 +46,13 @@ make_request() {
     local token=$(generate_token "$url" "$date")
     local auth_token="Auth-Token: $token"
 
-    curl -s -X $method "$url" \
+    curl -s -w "\nHTTP CODE: %{http_code}\n" -X $method "$url" \
         -H "$USER" \
         -H "Date: $date" \
         -H "$auth_token" \
         -H "$CONTENT_TYPE" \
         -d "$data"
 }
-
-# Crear usuario en backend interno (registro)
-curl -s -X POST http://localhost:8080/Service/u/register \
-     -H "Content-Type: application/json" \
-     -d "{\"id\": \"$USERNAME\", \"name\": \"$USERNAME\", \"password\": \"$PASSWORD\", \"email\": \"$EMAIL\"}"
-
-# Recuperar token
-USER_TOKEN=$(get_real_token)
-
-# Login externo
-echo -e "\n\n Login usuario (REST externo)\n"
-curl -s -X POST http://localhost:8180/Service/checkLogin \
-     -H "Content-Type: application/json" \
-     -d "{\"email\": \"$EMAIL\", \"password\": \"$PASSWORD\"}"
 
 # Ver perfil completo
 echo -e "\n\n Perfil completo del usuario:\n"
